@@ -13,6 +13,7 @@ import { RouterLink, RouterView } from 'vue-router';
     <nav class="main-nav">
       <RouterLink to="/">首页</RouterLink>
       <RouterLink to="/characters">角色图鉴</RouterLink>
+      <RouterLink to="/calculator">伤害计算器</RouterLink>
       <!-- Add more links here as we build more features -->
     </nav>
   </header>

@@ -7,7 +7,26 @@ export const characters = [
     attribute: '电',
     weapon: '刃',
     bio: '冷静、干练的少女，总是高效地完成各种委托。认为“效率”是处理一切事务的准则，但似乎对某些“效率低下”的事情——比如看电影，也有着别样的执着。',
-    icon: '/path/to/anby_icon.png' // Placeholder path
+    icon: '/path/to/anby_icon.png', // Placeholder path
+    stats: {
+      level_80: { base_atk: 320, base_hp: 8500, base_def: 400, crit_rate: 0.05, crit_dmg: 0.50 }
+    },
+    abilities: {
+      basic_attack: {
+        name: '普通攻击',
+        multipliers: [
+          { level: 1, value: 0.40, label: '第一击伤害' },
+          { level: 1, value: 0.45, label: '第二击伤害' },
+          { level: 1, value: 0.60, label: '第三击伤害' },
+        ]
+      },
+      special_attack: {
+        name: '特殊技',
+        multipliers: [
+          { level: 1, value: 1.80, label: '技能总伤害' }
+        ]
+      }
+    }
   },
   {
     id: 'nicole-demara',
@@ -17,7 +36,24 @@ export const characters = [
     attribute: '以太',
     weapon: '炮',
     bio: '狡兔屋的创始人，表面上是个财迷，实际上非常关心自己的伙伴。总能接到各种各样、奇奇怪怪的委托，在业界有着“什么都敢接”的名声。',
-    icon: '/path/to/nicole_icon.png' // Placeholder path
+    icon: '/path/to/nicole_icon.png', // Placeholder path
+    stats: {
+      level_80: { base_atk: 280, base_hp: 7800, base_def: 350, crit_rate: 0.05, crit_dmg: 0.50 }
+    },
+    abilities: {
+      basic_attack: {
+        name: '普通攻击',
+        multipliers: [
+          { level: 1, value: 0.70, label: '单发伤害' },
+        ]
+      },
+      special_attack: {
+        name: '特殊技',
+        multipliers: [
+          { level: 1, value: 2.20, label: '技能总伤害' }
+        ]
+      }
+    }
   },
   {
     id: 'billy-kid',
@@ -27,9 +63,24 @@ export const characters = [
     attribute: '物理',
     weapon: '枪',
     bio: '帅气、潇洒的半机械人，自称“星徽骑士”，将帅气作为自己的行动准则。虽然看起来有些轻浮，但作为“前辈”，在关键时刻相当可靠。',
-    icon: '/path/to/billy_icon.png' // Placeholder path
+    icon: '/path/to/billy_icon.png', // Placeholder path
+    stats: {
+      level_80: { base_atk: 295, base_hp: 8100, base_def: 380, crit_rate: 0.05, crit_dmg: 0.50 }
+    },
+    abilities: {
+      basic_attack: {
+        name: '普通攻击',
+        multipliers: [
+          { level: 1, value: 0.35, label: '第一击伤害' },
+          { level: 1, value: 0.35, label: '第二击伤害' },
+        ]
+      },
+      special_attack: {
+        name: '特殊技',
+        multipliers: [
+          { level: 1, value: 2.0, label: '技能总伤害' }
+        ]
+      }
+    }
   }
 ];
-
-// In the future, we can add more data files like wEngines.js, bangboos.js etc.
-// export const wEngines = [ ... ];

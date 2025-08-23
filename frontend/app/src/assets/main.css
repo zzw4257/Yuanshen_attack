@@ -1,35 +1,27 @@
 @import './base.css';
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  width: 100%;
+  margin: 0;
+  padding: 0; /* Remove default padding */
   font-weight: normal;
 }
 
 a,
-.green {
+.link-accent { /* Make the class name more generic */
   text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
+  color: var(--color-accent-green);
   transition: 0.4s;
   padding: 3px;
 }
 
 @media (hover: hover) {
   a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
+    /* Add a subtle glow/shadow effect for hover */
+    background-color: transparent;
+    text-shadow: 0 0 8px var(--color-accent-green);
   }
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
-}
+/* Remove the default responsive grid layout for now */
+/* It will be replaced by a custom layout component */

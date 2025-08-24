@@ -18,9 +18,9 @@ defineProps({
     <div class="card-body">
       <h3 class="character-name">{{ character.name }}</h3>
       <div class="character-details">
-        <span class="detail-item">{{ character.faction }}</span>
-        <span class="detail-item">{{ character.attribute }}</span>
-        <span class="detail-item">{{ character.weapon }}</span>
+        <span class="detail-item">{{ character.camp }}</span>
+        <span class="detail-item">{{ character.attribute || character.elementType }}</span>
+        <span class="detail-item">{{ character.weapon || character.weaponType }}</span>
       </div>
     </div>
   </div>

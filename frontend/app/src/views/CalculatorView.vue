@@ -36,12 +36,7 @@ const store = useCalculatorStore();
           <StatInput stat="dmg_bonus" label="增伤 %" is-percent />
         </section>
 
-        <section class="config-section" v-if="store.selectedCharacter">
-          <h2>4. 装备配置</h2>
-          <p>（音擎和驱动盘选择器将放在这里）</p>
-        </section>
-
-        <div class="calculate-button-wrapper" v-if="store.selectedCharacter && store.selectedAbility">
+        <div class="calculate-button-wrapper" v-if="store.selectedCharacter && store.selectedAbilityKey">
           <button @click="store.performCalculation" class="calculate-button">
             计 算
           </button>
@@ -74,7 +69,6 @@ const store = useCalculatorStore();
 .calculator-view {
   padding: 2rem;
 }
-
 .view-title {
   color: var(--color-heading);
   font-size: 3rem;
@@ -83,7 +77,6 @@ const store = useCalculatorStore();
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
-
 .calculator-layout {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -91,20 +84,17 @@ const store = useCalculatorStore();
   max-width: 1400px;
   margin: 0 auto;
 }
-
 .config-panel, .results-panel {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
-
 .config-section, .results-section {
   background-color: var(--color-background-soft);
   border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 1.5rem;
 }
-
 h2 {
   font-family: 'Teko', sans-serif;
   font-size: 2rem;
@@ -114,21 +104,17 @@ h2 {
   border-bottom: 1px solid var(--color-border);
   padding-bottom: 0.5rem;
 }
-
 .character-selection-header {
   display: flex;
   align-items: center;
   gap: 2rem;
 }
-
 .character-selection-header > :first-child {
   flex-grow: 1;
 }
-
 .calculate-button-wrapper {
   margin-top: 1rem;
 }
-
 .calculate-button {
   width: 100%;
   padding: 1rem;
@@ -142,12 +128,10 @@ h2 {
   transition: transform 0.2s, box-shadow 0.2s;
   letter-spacing: 0.1em;
 }
-
 .calculate-button:hover {
   transform: scale(1.02);
   box-shadow: 0 0 15px var(--color-accent-green);
 }
-
 .placeholder-text {
   text-align: center;
   color: var(--color-text);

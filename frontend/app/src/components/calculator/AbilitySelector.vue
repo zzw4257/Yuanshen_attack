@@ -5,19 +5,18 @@ import { useCalculatorStore } from '@/stores/calculatorStore.js';
 const store = useCalculatorStore();
 
 const availableSkills = computed(() => {
-  if (!store.selectedCharacterSkills || !store.selectedCharacterSkills.skill) {
+  if (!store.selectedCharacter || !store.selectedCharacter.skills) {
     return [];
   }
   // Convert the skill dictionary into an array for v-for
-  return Object.keys(store.selectedCharacterSkills.skill).map(key => ({
+  return Object.entries(store.selectedCharacter.skills).map(([key, skill]) => ({
     id: key,
-    // A real implementation would have a mapping from 'AX' to a proper name
-    name: `技能 - ${key}`
+    name: skill.name
   }));
 });
 
 function onAbilityChange(event) {
-  store.selectedAbility = event.target.value;
+  store.selectedAbilityKey = event.target.value;
 }
 </script>
 
@@ -26,7 +25,7 @@ function onAbilityChange(event) {
     <label for="ability-select">选择技能:</label>
     <select
       id="ability-select"
-      :value="store.selectedAbility"
+      :value="store.selectedAbilityKey"
       @change="onAbilityChange"
       class="custom-select"
       :disabled="availableSkills.length === 0"

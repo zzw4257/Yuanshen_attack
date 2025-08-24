@@ -1,33 +1,16 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-
 import { useCharacterStore } from './characterStore.js';
-import { wEngines } from '@/data/wEngines.js';
+import { wEngines } from '@/data/wEngines.js'; // Note: W-Engine data is now outdated vs character data
 import { calculateDamage } from '@/logic/damageCalculator.js';
-
-/**
- * Calculates a stat at a given level using base and growth values.
- * Note: The exact growth formula for ZZZ is complex. This is a simplified
- * linear interpretation for our MVP.
- * @param {number} base - The base stat at level 1.
- * @param {number} growth - The growth coefficient.
- * @param {number} level - The target level.
- * @returns {number} The calculated stat at the target level.
- */
-function calculateStat(base, growth, level) {
-    // The growth values in the JSON are large integers, they are likely scaled.
-    // A common scaling factor in such games is 1000 or 10000. We'll use 10000 as a guess.
-    const growthFactor = growth / 10000;
-    return base + (level - 1) * growthFactor;
-}
-
 
 export const useCalculatorStore = defineStore('calculator', () => {
   // --- STATE ---
   const selectedCharacterId = ref(null);
   const selectedWeaponId = ref(null);
   const characterLevel = ref(60);
-  const selectedAbility = ref(null);
+  const talentLevel = ref(1); // New: Assume talent level 1 for now
+  const selectedAbilityKey = ref(null); // e.g., 'basic_attack_1'
   const calculationResults = ref([]);
 
   const playerStats = ref({
@@ -46,16 +29,10 @@ export const useCalculatorStore = defineStore('calculator', () => {
     return characterStore.getCharacterById(selectedCharacterId.value);
   });
 
-  const selectedCharacterSkills = computed(() => {
-    if (!selectedCharacterId.value) return null;
-    return characterStore.getSkillsByCharId(selectedCharacterId.value);
-  });
-
   const selectedWeapon = computed(() => {
     return wEngines.find(w => w.id === selectedWeaponId.value) || null;
   });
 
-  // REWRITTEN to use dynamic stat calculation
   const finalStats = computed(() => {
     if (!selectedCharacter.value) {
       return { total_atk: 0, crit_rate: 0, crit_dmg: 0, dmg_bonus: 0 };
@@ -64,16 +41,25 @@ export const useCalculatorStore = defineStore('calculator', () => {
     const charData = selectedCharacter.value;
     const level = characterLevel.value;
 
-    // Calculate base stats at the selected level
-    const charBaseAtk = calculateStat(charData.attack, charData.attackGrowth, level);
-    // HP and DEF can be calculated similarly if needed, but ATK is primary for damage.
+    // Find the correct stat row from the new data structure
+    let baseStats = { atk: 0, def: 0, hp: 0 };
+    for (const key in charData.stats) {
+        if (key.startsWith('ascension_')) {
+            const ascData = charData.stats[key][0];
+            if (level >= ascData.level) {
+                baseStats.atk = ascData.atk_post || ascData.atk;
+                baseStats.hp = ascData.hp_post || ascData.hp;
+                baseStats.def = ascData.def_post || ascData.def_field;
+            }
+        }
+    }
 
-    const base_crit_rate = charData.crit / 10000;
-    const base_crit_dmg = charData.critDamage / 10000;
+    const base_crit_rate = parseFloat(charData.stats.base.crit_rate) / 100;
+    const base_crit_dmg = parseFloat(charData.stats.base.crit_dmg) / 100;
 
     const weaponBaseAtk = selectedWeapon.value ? selectedWeapon.value.base_atk : 0;
 
-    const total_base_atk = charBaseAtk + weaponBaseAtk;
+    const total_base_atk = baseStats.atk + weaponBaseAtk;
     const total_atk = total_base_atk * (1 + playerStats.value.bonus_atk_percent) + playerStats.value.bonus_atk_flat;
 
     const crit_rate = base_crit_rate + playerStats.value.crit_rate;
@@ -86,41 +72,44 @@ export const useCalculatorStore = defineStore('calculator', () => {
   // --- ACTIONS ---
   function setCharacter(characterId) {
     selectedCharacterId.value = characterId;
-    selectedAbility.value = null;
+    selectedAbilityKey.value = null;
     calculationResults.value = [];
-    characterStore.fetchSkillData(characterId);
   }
 
   function performCalculation() {
-    if (!selectedCharacter.value || !selectedAbility.value || !selectedCharacterSkills.value) return;
+    if (!selectedCharacter.value || !selectedAbilityKey.value) return;
 
     const stats = finalStats.value;
-    const skillSet = selectedCharacterSkills.value.skill;
-    const abilityMultipliers = skillSet[selectedAbility.value];
+    const skill = selectedCharacter.value.skills[selectedAbilityKey.value];
+    if (!skill) return;
 
-    if (!abilityMultipliers || abilityMultipliers.length === 0) {
-      console.error(`No multipliers found for ability ${selectedAbility.value}`);
-      return;
+    const results = [];
+    const skillMultipliers = skill.multipliers.damage;
+
+    // Find the multipliers for the current talent level (or closest)
+    const talentIdx = talentLevel.value - 1;
+    const multipliers = skillMultipliers[talentIdx] || skillMultipliers[0];
+
+    for (let i = 0; i < multipliers.values.length; i++) {
+        const multiplierValue = parseFloat(multipliers.values[i]) / 100;
+        const abilityName = `${skill.name} (${skill.multipliers.headers[i+1]})`;
+        results.push({
+            name: abilityName,
+            damage: calculateDamage(stats, multiplierValue)
+        });
     }
-
-    const multiplier = abilityMultipliers[0];
-
-    const results = [{
-      name: `技能 [${selectedAbility.value}]`,
-      damage: calculateDamage(stats, multiplier)
-    }];
 
     calculationResults.value = results;
   }
 
   return {
     selectedCharacterId,
-    selectedAbility,
+    selectedAbilityKey,
     playerStats,
     characterLevel,
+    talentLevel,
     calculationResults,
     selectedCharacter,
-    selectedCharacterSkills,
     finalStats,
     setCharacter,
     performCalculation,

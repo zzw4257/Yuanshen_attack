@@ -1,0 +1,77 @@
+{
+  "id": "alice",
+  "name": "爱丽丝",
+  "full_name": "爱丽丝·泰姆菲尔德",
+  "rarity": "S",
+  "attribute": "物理",
+  "specialty": "异常",
+  "weapon": "斩击",
+  "faction": "怪啖屋",
+  "stats": {
+    "headers": ["Level", "HP", "ATK", "DEF"],
+    "ascension_0": [
+      { "level": 1, "hp": 617, "atk": 127, "def": 49 }
+    ],
+    "ascension_1": [
+      { "level": 10, "hp_pre": 1370, "atk_pre": 196, "def_pre": 108 },
+      { "level": 10, "hp_post": 1793, "atk_post": 241, "def_post": 141 }
+    ],
+    "ascension_2": [
+      { "level": 20, "hp_pre": 2630, "atk_pre": 317, "def_pre": 207 },
+      { "level": 20, "hp_post": 3054, "atk_post": 362, "def_post": 241 }
+    ],
+    "ascension_3": [
+      { "level": 30, "hp_pre": 3891, "atk_pre": 439, "def_pre": 307 },
+      { "level": 30, "hp_post": 4314, "atk_post": 485, "def_post": 340 }
+    ],
+    "ascension_4": [
+      { "level": 40, "hp_pre": 5152, "atk_pre": 562, "def_pre": 407 },
+      { "level": 40, "hp_post": 5576, "atk_post": 607, "def_post": 441 }
+    ],
+    "ascension_5": [
+      { "level": 50, "hp_pre": 6413, "atk_pre": 683, "def_pre": 507 },
+      { "level": 50, "hp_post": 6836, "atk_post": 728, "def_post": 540 }
+    ],
+    "ascension_6": [
+      { "level": 60, "hp": 7673, "atk": 805, "def": 606 }
+    ],
+    "base": {
+      "crit_rate": "5%",
+      "crit_dmg": "50%",
+      "impact": 86,
+      "anomaly_mastery": 118
+    }
+  },
+  "skills": {
+    "basic_attack_1": {
+      "name": "普通攻击：星仪序曲",
+      "multipliers": {
+        "headers": ["Level", "1段", "2段", "3段", "4段", "5段", "5段(强化)"],
+        "damage": [
+          { "level": 1, "values": ["55.1%", "88%", "66.1%", "111.9%", "130.3%", "218.3%"] },
+          { "level": 2, "values": ["60.2%", "96%", "72.2%", "122.1%", "142.2%", "238.2%"] }
+        ]
+      }
+    },
+    "basic_attack_2": {
+      "name": "普通攻击：星芒圆舞曲",
+      "multipliers": {
+        "headers": ["Level", "1段蓄力", "2段蓄力", "3段蓄力"],
+        "damage": [
+          { "level": 1, "values": ["188.9%", "304.4%", "965.7%"] },
+          { "level": 2, "values": ["206.1%", "332.1%", "1053.5%"] }
+        ]
+      }
+    },
+    "special_attack_1": {
+      "name": "强化特殊技：极光突刺·北十字",
+      "multipliers": {
+        "headers": ["Level", "伤害倍率"],
+        "damage": [
+          { "level": 1, "values": ["460%"] },
+          { "level": 2, "values": ["501.9%"] }
+        ]
+      }
+    }
+  }
+}

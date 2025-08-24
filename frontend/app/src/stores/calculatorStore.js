@@ -5,12 +5,29 @@ import { useCharacterStore } from './characterStore.js';
 import { wEngines } from '@/data/wEngines.js';
 import { calculateDamage } from '@/logic/damageCalculator.js';
 
+/**
+ * Calculates a stat at a given level using base and growth values.
+ * Note: The exact growth formula for ZZZ is complex. This is a simplified
+ * linear interpretation for our MVP.
+ * @param {number} base - The base stat at level 1.
+ * @param {number} growth - The growth coefficient.
+ * @param {number} level - The target level.
+ * @returns {number} The calculated stat at the target level.
+ */
+function calculateStat(base, growth, level) {
+    // The growth values in the JSON are large integers, they are likely scaled.
+    // A common scaling factor in such games is 1000 or 10000. We'll use 10000 as a guess.
+    const growthFactor = growth / 10000;
+    return base + (level - 1) * growthFactor;
+}
+
+
 export const useCalculatorStore = defineStore('calculator', () => {
   // --- STATE ---
   const selectedCharacterId = ref(null);
   const selectedWeaponId = ref(null);
   const characterLevel = ref(60);
-  const selectedAbility = ref(null); // e.g., 'AX' or 'EQ'
+  const selectedAbility = ref(null);
   const calculationResults = ref([]);
 
   const playerStats = ref({
@@ -38,17 +55,27 @@ export const useCalculatorStore = defineStore('calculator', () => {
     return wEngines.find(w => w.id === selectedWeaponId.value) || null;
   });
 
+  // REWRITTEN to use dynamic stat calculation
   const finalStats = computed(() => {
     if (!selectedCharacter.value) {
       return { total_atk: 0, crit_rate: 0, crit_dmg: 0, dmg_bonus: 0 };
     }
+
     const charData = selectedCharacter.value;
-    const base_atk = charData.attack;
+    const level = characterLevel.value;
+
+    // Calculate base stats at the selected level
+    const charBaseAtk = calculateStat(charData.attack, charData.attackGrowth, level);
+    // HP and DEF can be calculated similarly if needed, but ATK is primary for damage.
+
     const base_crit_rate = charData.crit / 10000;
     const base_crit_dmg = charData.critDamage / 10000;
+
     const weaponBaseAtk = selectedWeapon.value ? selectedWeapon.value.base_atk : 0;
-    const total_base_atk = base_atk + weaponBaseAtk;
+
+    const total_base_atk = charBaseAtk + weaponBaseAtk;
     const total_atk = total_base_atk * (1 + playerStats.value.bonus_atk_percent) + playerStats.value.bonus_atk_flat;
+
     const crit_rate = base_crit_rate + playerStats.value.crit_rate;
     const crit_dmg = base_crit_dmg + playerStats.value.crit_dmg;
     const dmg_bonus = playerStats.value.dmg_bonus;
@@ -59,9 +86,9 @@ export const useCalculatorStore = defineStore('calculator', () => {
   // --- ACTIONS ---
   function setCharacter(characterId) {
     selectedCharacterId.value = characterId;
-    selectedAbility.value = null; // Reset selected ability
+    selectedAbility.value = null;
     calculationResults.value = [];
-    characterStore.fetchSkillData(characterId); // Fetch skills for the new character
+    characterStore.fetchSkillData(characterId);
   }
 
   function performCalculation() {
@@ -76,7 +103,6 @@ export const useCalculatorStore = defineStore('calculator', () => {
       return;
     }
 
-    // For now, just use the first level multiplier (level 1 talent)
     const multiplier = abilityMultipliers[0];
 
     const results = [{

@@ -1,5 +1,6 @@
 <script setup>
 import CharacterSelector from '@/components/calculator/CharacterSelector.vue';
+import LevelSelector from '@/components/calculator/LevelSelector.vue';
 import AbilitySelector from '@/components/calculator/AbilitySelector.vue';
 import StatInput from '@/components/calculator/StatInput.vue';
 import ResultsDisplay from '@/components/calculator/ResultsDisplay.vue';
@@ -15,7 +16,10 @@ const store = useCalculatorStore();
       <div class="config-panel">
         <section class="config-section">
           <h2>1. 角色选择</h2>
-          <CharacterSelector />
+          <div class="character-selection-header">
+            <CharacterSelector />
+            <LevelSelector />
+          </div>
         </section>
 
         <section class="config-section" v-if="store.selectedCharacter">
@@ -109,6 +113,16 @@ h2 {
   margin-bottom: 1rem;
   border-bottom: 1px solid var(--color-border);
   padding-bottom: 0.5rem;
+}
+
+.character-selection-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.character-selection-header > :first-child {
+  flex-grow: 1;
 }
 
 .calculate-button-wrapper {

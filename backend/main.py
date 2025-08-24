@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 class CharacterData(BaseModel):
     name: str
     full_name: str
+    en_name: str  # Added english name
     rarity: str
     camp: str
     elementType: str
@@ -49,12 +50,15 @@ db_characters: Dict[str, CharacterData] = {}
 @app.on_event("startup")
 def load_seed_data():
     """Load character data from the JSON file into the in-memory db on startup."""
-    # The path is relative to the root of the project where the server is run from
-    data_path = Path("../frontend/app/src/data/plugin_data/PartnerId2Data.json")
+    # Updated path to the new full data file
+    data_path = Path("../frontend/app/src/data/plugin_data/characters_full.json")
     if data_path.exists():
         with open(data_path, "r", encoding="utf-8") as f:
             data = json.load(f)
             for char_id, char_data in data.items():
+                # Ensure the data has the en_name field, provide default if not
+                if 'en_name' not in char_data:
+                    char_data['en_name'] = char_data['name']
                 db_characters[char_id] = CharacterData(**char_data)
     else:
         print(f"Warning: Seed data file not found at {data_path}")
@@ -71,11 +75,7 @@ def get_characters():
     """Retrieve all characters from the database."""
     return db_characters
 
-# The POST endpoint needs to be updated or temporarily disabled as the data structure is now more complex
-# For this step, we focus on serving the new data structure correctly.
-# The 'add character' feature will need a more complex form and will be re-implemented later.
-# For now, let's comment it out to avoid errors with the new data model.
-#
+# The POST endpoint remains disabled for now.
 # @app.post("/api/characters", response_model=Character, status_code=201)
 # def create_character(character: Character):
 #     """Add a new character to the database."""

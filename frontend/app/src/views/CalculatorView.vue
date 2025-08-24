@@ -1,5 +1,6 @@
 <script setup>
 import CharacterSelector from '@/components/calculator/CharacterSelector.vue';
+import AbilitySelector from '@/components/calculator/AbilitySelector.vue';
 import StatInput from '@/components/calculator/StatInput.vue';
 import ResultsDisplay from '@/components/calculator/ResultsDisplay.vue';
 import { useCalculatorStore } from '@/stores/calculatorStore.js';
@@ -18,7 +19,12 @@ const store = useCalculatorStore();
         </section>
 
         <section class="config-section" v-if="store.selectedCharacter">
-          <h2>2. 属性面板</h2>
+          <h2>2. 技能选择</h2>
+          <AbilitySelector />
+        </section>
+
+        <section class="config-section" v-if="store.selectedCharacter">
+          <h2>3. 属性面板</h2>
           <StatInput stat="bonus_atk_flat" label="额外攻击力" />
           <StatInput stat="bonus_atk_percent" label="额外攻击力 %" is-percent />
           <StatInput stat="crit_rate" label="暴击率 %" is-percent />
@@ -27,11 +33,11 @@ const store = useCalculatorStore();
         </section>
 
         <section class="config-section" v-if="store.selectedCharacter">
-          <h2>3. 装备配置</h2>
+          <h2>4. 装备配置</h2>
           <p>（音擎和驱动盘选择器将放在这里）</p>
         </section>
 
-        <div class="calculate-button-wrapper" v-if="store.selectedCharacter">
+        <div class="calculate-button-wrapper" v-if="store.selectedCharacter && store.selectedAbility">
           <button @click="store.performCalculation" class="calculate-button">
             计 算
           </button>
@@ -44,7 +50,7 @@ const store = useCalculatorStore();
             请先选择一个角色
           </div>
           <div v-else-if="store.calculationResults.length === 0" class="placeholder-text">
-            点击“计算”按钮以查看结果
+            选择技能并点击“计算”
           </div>
           <div v-else>
             <ResultsDisplay

@@ -1,3 +1,5 @@
+import json
+from pathlib import Path
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List, Dict, Union
@@ -5,40 +7,27 @@ from typing import List, Dict, Union
 # CORS (Cross-Origin Resource Sharing) middleware to allow frontend requests
 from fastapi.middleware.cors import CORSMiddleware
 
-# --- Pydantic Models for Data Validation ---
-class Multiplier(BaseModel):
-    level: int
-    value: float
-    label: str
-
-class Ability(BaseModel):
+# --- Pydantic Models for the new, more detailed data structure ---
+class CharacterData(BaseModel):
     name: str
-    multipliers: List[Multiplier]
-
-class Stats(BaseModel):
-    base_atk: int
-    base_hp: int
-    base_def: int
-    crit_rate: float
-    crit_dmg: float
-
-class Character(BaseModel):
-    id: str
-    name: str
+    full_name: str
     rarity: str
-    faction: str
-    attribute: str
-    weapon: str
-    bio: str
-    icon: str
-    stats: Dict[str, Stats]
-    abilities: Dict[str, Ability]
+    camp: str
+    elementType: str
+    weaponType: str
+    attack: int
+    attackGrowth: int
+    hpMax: int
+    hpGrowth: int
+    defence: int
+    defenceGrowth: int
+    crit: int
+    critDamage: int
 
 # --- FastAPI App Initialization ---
 app = FastAPI()
 
 # --- CORS Configuration ---
-# Allow requests from the default Vue dev server and other common origins
 origins = [
     "http://localhost:5173",
     "http://localhost:3000",
@@ -54,43 +43,42 @@ app.add_middleware(
 )
 
 # --- In-Memory Database & Seed Data ---
-# Re-creating the data from characters.js in Python
-db_characters: List[Character] = [
-    Character(**{
-        "id": "anby-demara", "name": "安比·德玛拉", "rarity": "S", "faction": "狡兔屋", "attribute": "电", "weapon": "刃",
-        "bio": "冷静、干练的少女...", "icon": "/path/to/anby_icon.png",
-        "stats": {"level_60": {"base_atk": 929, "base_hp": 7673, "base_def": 612, "crit_rate": 0.194, "crit_dmg": 0.50}},
-        "abilities": {
-            "basic_attack": {"name": "普通攻击", "multipliers": [{"level": 1, "value": 0.40, "label": "第一击"}, {"level": 1, "value": 0.45, "label": "第二击"}, {"level": 1, "value": 0.60, "label": "第三击"}]},
-            "special_attack": {"name": "特殊技", "multipliers": [{"level": 8, "value": 3.50, "label": "技能总伤害"}]}
-        }
-    }),
-    Character(**{
-        "id": "hoshimi-miyabi", "name": "星见雅", "rarity": "S", "faction": "对空六课", "attribute": "冰", "weapon": "刃",
-        "bio": "对空六课的行动组组长...", "icon": "/path/to/miyabi_icon.png",
-        "stats": {"level_60": {"base_atk": 880, "base_hp": 7673, "base_def": 606, "crit_rate": 0.05, "crit_dmg": 0.50}},
-        "abilities": {
-            "basic_attack": {"name": "普通攻击", "multipliers": [{"level": 1, "value": 0.50, "label": "斩击"}]},
-            "special_attack": {"name": "特殊技", "multipliers": [{"level": 1, "value": 2.80, "label": "冰封之舞"}]}
-        }
-    }),
-    # Add more characters here if needed
-]
+# Load data from the new JSON file
+db_characters: Dict[str, CharacterData] = {}
+
+@app.on_event("startup")
+def load_seed_data():
+    """Load character data from the JSON file into the in-memory db on startup."""
+    # The path is relative to the root of the project where the server is run from
+    data_path = Path("../frontend/app/src/data/plugin_data/PartnerId2Data.json")
+    if data_path.exists():
+        with open(data_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            for char_id, char_data in data.items():
+                db_characters[char_id] = CharacterData(**char_data)
+    else:
+        print(f"Warning: Seed data file not found at {data_path}")
 
 
 # --- API Endpoints ---
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to the New Eridu Beacon API"}
+    return {"message": "Welcome to the New Eridu Beacon API (v2 - Phoenix)"}
 
-@app.get("/api/characters", response_model=List[Character])
+# The response model is now a dictionary mapping ID to character data
+@app.get("/api/characters", response_model=Dict[str, CharacterData])
 def get_characters():
     """Retrieve all characters from the database."""
     return db_characters
 
-@app.post("/api/characters", response_model=Character, status_code=201)
-def create_character(character: Character):
-    """Add a new character to the database."""
-    # In a real application, we'd check for duplicate IDs
-    db_characters.append(character)
-    return character
+# The POST endpoint needs to be updated or temporarily disabled as the data structure is now more complex
+# For this step, we focus on serving the new data structure correctly.
+# The 'add character' feature will need a more complex form and will be re-implemented later.
+# For now, let's comment it out to avoid errors with the new data model.
+#
+# @app.post("/api/characters", response_model=Character, status_code=201)
+# def create_character(character: Character):
+#     """Add a new character to the database."""
+#     # This logic needs to be updated for the new Dict-based DB
+#     # db_characters[character.id] = character
+#     return character

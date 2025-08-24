@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
-import { characters } from '@/data/characters.js';
-import { wEngines } from '@/data/wEngines.js';
+import { useCharacterStore } from './characterStore.js';
+import { wEngines } from '@/data/wEngines.js'; // Keep this for now
 import { calculateDamage } from '@/logic/damageCalculator.js';
 
 export const useCalculatorStore = defineStore('calculator', () => {
@@ -11,40 +11,37 @@ export const useCalculatorStore = defineStore('calculator', () => {
   const selectedWeaponId = ref(null);
   const calculationResults = ref([]);
 
-  // Player-provided stats that add to the base stats
   const playerStats = ref({
     bonus_atk_flat: 0,
     bonus_atk_percent: 0,
     crit_rate: 0,
     crit_dmg: 0,
     dmg_bonus: 0,
-    // ... more stats can be added here
   });
 
   // --- GETTERS ---
+  const characterStore = useCharacterStore();
+
   const selectedCharacter = computed(() => {
-    return characters.find(c => c.id === selectedCharacterId.value) || null;
+    // Find character from the characterStore instead of static import
+    return characterStore.characters.find(c => c.id === selectedCharacterId.value) || null;
   });
 
   const selectedWeapon = computed(() => {
     return wEngines.find(w => w.id === selectedWeaponId.value) || null;
   });
 
-  // This is the core getter that combines all stats for the calculation
   const finalStats = computed(() => {
     if (!selectedCharacter.value) {
       return { total_atk: 0, crit_rate: 0, crit_dmg: 0, dmg_bonus: 0 };
     }
 
-    // Start with character's base stats (e.g., at level 80)
-    const charBaseStats = selectedCharacter.value.stats.level_80;
+    const charBaseStats = selectedCharacter.value.stats.level_60;
     const weaponBaseAtk = selectedWeapon.value ? selectedWeapon.value.base_atk : 0;
 
-    // Calculate Total ATK
     const total_base_atk = charBaseStats.base_atk + weaponBaseAtk;
     const total_atk = total_base_atk * (1 + playerStats.value.bonus_atk_percent) + playerStats.value.bonus_atk_flat;
 
-    // Combine other stats
     const crit_rate = charBaseStats.crit_rate + playerStats.value.crit_rate;
     const crit_dmg = charBaseStats.crit_dmg + playerStats.value.crit_dmg;
     const dmg_bonus = playerStats.value.dmg_bonus;
@@ -61,7 +58,7 @@ export const useCalculatorStore = defineStore('calculator', () => {
   // --- ACTIONS ---
   function setCharacter(characterId) {
     selectedCharacterId.value = characterId;
-    calculationResults.value = []; // Reset results when character changes
+    calculationResults.value = [];
   }
 
   function setWeapon(weaponId) {
@@ -81,7 +78,6 @@ export const useCalculatorStore = defineStore('calculator', () => {
     const abilities = selectedCharacter.value.abilities;
     const results = [];
 
-    // For now, calculate for all basic attack hits and special attack
     if (abilities.basic_attack) {
       abilities.basic_attack.multipliers.forEach(m => {
         results.push({

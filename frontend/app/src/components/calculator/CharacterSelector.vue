@@ -1,11 +1,20 @@
 <script setup>
-import { characters } from '@/data/characters.js';
+import { onMounted } from 'vue';
+import { useCharacterStore } from '@/stores/characterStore.js';
 import { useCalculatorStore } from '@/stores/calculatorStore.js';
 
-const store = useCalculatorStore();
+const characterStore = useCharacterStore();
+const calculatorStore = useCalculatorStore();
+
+onMounted(() => {
+  // Fetch characters if they haven't been fetched already
+  if (characterStore.characters.length === 0) {
+    characterStore.fetchCharacters();
+  }
+});
 
 function onCharacterChange(event) {
-  store.setCharacter(event.target.value);
+  calculatorStore.setCharacter(event.target.value);
 }
 </script>
 
@@ -14,13 +23,13 @@ function onCharacterChange(event) {
     <label for="character-select">选择角色:</label>
     <select
       id="character-select"
-      :value="store.selectedCharacterId"
+      :value="calculatorStore.selectedCharacterId"
       @change="onCharacterChange"
       class="custom-select"
     >
       <option :value="null" disabled>--请选择一个角色--</option>
       <option
-        v-for="char in characters"
+        v-for="char in characterStore.characters"
         :key="char.id"
         :value="char.id"
       >
